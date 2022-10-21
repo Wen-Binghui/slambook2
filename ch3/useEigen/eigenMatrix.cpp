@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
 
   // 下面是对Eigen阵的操作
   // 输入数据（初始化）
-  matrix_23 << 1, 2, 3, 4, 5, 6;
+  matrix_23 << 1, 2, 3, 4, 5, 6; // 先一整行后换新行
   // 输出
   cout << "matrix 2x3 from 1 to 6: \n" << matrix_23 << endl;
 
