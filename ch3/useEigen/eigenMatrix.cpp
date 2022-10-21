@@ -30,11 +30,11 @@ int main(int argc, char **argv) {
 
   // Matrix3d 实质上是 Eigen::Matrix<double, 3, 3>
   Matrix3d matrix_33 = Matrix3d::Zero(); //初始化为零
+
   // 如果不确定矩阵大小，可以使用动态大小的矩阵
-  Matrix<double, Dynamic, Dynamic> matrix_dynamic;
+  Matrix<double, Dynamic, Dynamic> matrix_dynamic; // Dynamic = -1;
   // 更简单的
-  MatrixXd matrix_x;
-  // 这种类型还有很多，我们不一一列举
+  MatrixXd matrix_x; // 这种类型还有很多，我们不一一列举
 
   // 下面是对Eigen阵的操作
   // 输入数据（初始化）
