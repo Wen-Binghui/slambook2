@@ -16,6 +16,7 @@ include_directories(
         ${G2O_INCLUDE_DIRS}
         ${Sophus_INCLUDE_DIRS}
         "/usr/include/eigen3/"
+        "include"
 )
 
 add_executable(orb_cv orb_cv.cpp)
