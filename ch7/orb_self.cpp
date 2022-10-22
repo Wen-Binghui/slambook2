@@ -41,14 +41,14 @@ int main(int argc, char **argv) {
   cv::Mat first_image = cv::imread(first_file, 0);
   cv::Mat second_image = cv::imread(second_file, 0);
   assert(first_image.data != nullptr && second_image.data != nullptr);
-  
+
   // detect FAST keypoints1 using threshold=40
-  chrono::steady_clock::time_point t1 = chrono::steady_clock::now();
+  chrono::steady_clock::time_point t1 = chrono::steady_clock::now(); //获取系统当前时间
   vector<cv::KeyPoint> keypoints1;
   cv::FAST(first_image, keypoints1, 40);
   vector<DescType> descriptor1;
   ComputeORB(first_image, keypoints1, descriptor1);
-
+  
   // same for the second
   vector<cv::KeyPoint> keypoints2;
   vector<DescType> descriptor2;
