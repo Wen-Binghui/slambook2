@@ -60,4 +60,6 @@ int main(int argc, char **argv) {
   cout << "should be equal to " << (q * Quaterniond(0, 1, 0, 0) * q.inverse()).coeffs().transpose() << endl;
 
   return 0;
+
+  
 }

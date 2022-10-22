@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
   cv::Mat first_image = cv::imread(first_file, 0);
   cv::Mat second_image = cv::imread(second_file, 0);
   assert(first_image.data != nullptr && second_image.data != nullptr);
-
+  
   // detect FAST keypoints1 using threshold=40
   chrono::steady_clock::time_point t1 = chrono::steady_clock::now();
   vector<cv::KeyPoint> keypoints1;

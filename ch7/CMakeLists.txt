@@ -1,9 +1,10 @@
 cmake_minimum_required(VERSION 2.8)
 project(vo1)
 
+
 set(CMAKE_BUILD_TYPE "Release")
 add_definitions("-DENABLE_SSE")
-set(CMAKE_CXX_FLAGS "-std=c++11 -O2 ${SSE_FLAGS} -msse4")
+set(CMAKE_CXX_FLAGS "-std=c++14 -O2 ${SSE_FLAGS} -msse4")
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 find_package(OpenCV 3 REQUIRED)
@@ -18,25 +19,24 @@ include_directories(
 )
 
 add_executable(orb_cv orb_cv.cpp)
-target_link_libraries(orb_cv ${OpenCV_LIBS})
+target_link_libraries(orb_cv ${OpenCV_LIBS} fmt)
 
 add_executable(orb_self orb_self.cpp)
-target_link_libraries(orb_self ${OpenCV_LIBS})
+target_link_libraries(orb_self ${OpenCV_LIBS} fmt)
 
 # add_executable( pose_estimation_2d2d pose_estimation_2d2d.cpp extra.cpp ) # use this if in OpenCV2 
 add_executable(pose_estimation_2d2d pose_estimation_2d2d.cpp)
-target_link_libraries(pose_estimation_2d2d ${OpenCV_LIBS})
-
+target_link_libraries(pose_estimation_2d2d ${OpenCV_LIBS} ${Sophus_LIBRARIES} fmt)
 # # add_executable( triangulation triangulation.cpp extra.cpp) # use this if in opencv2
 add_executable(triangulation triangulation.cpp)
-target_link_libraries(triangulation ${OpenCV_LIBS})
+target_link_libraries(triangulation ${OpenCV_LIBS} fmt)
 
 add_executable(pose_estimation_3d2d pose_estimation_3d2d.cpp)
 target_link_libraries(pose_estimation_3d2d
         g2o_core g2o_stuff
-        ${OpenCV_LIBS})
+        ${OpenCV_LIBS} fmt)
 
 add_executable(pose_estimation_3d3d pose_estimation_3d3d.cpp)
 target_link_libraries(pose_estimation_3d3d
         g2o_core g2o_stuff
-        ${OpenCV_LIBS})
+        ${OpenCV_LIBS} fmt)
