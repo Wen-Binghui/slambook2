@@ -96,7 +96,7 @@ int main(int argc, char **argv) {
     pts_2d_eigen.push_back(Eigen::Vector2d(pts_2d[i].x, pts_2d[i].y));
   }
 
-  cout << "calling bundle adjustment by gauss newton" << endl;
+  cout << "calling bundle adjustment by gauss newton." << endl;
   Sophus::SE3d pose_gn;
   t1 = chrono::steady_clock::now();
   bundleAdjustmentGaussNewton(pts_3d_eigen, pts_2d_eigen, K, pose_gn);
