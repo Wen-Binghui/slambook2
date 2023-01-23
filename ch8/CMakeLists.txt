@@ -4,10 +4,15 @@ project(ch8)
 set(CMAKE_BUILD_TYPE "Release")
 add_definitions("-DENABLE_SSE")
 set(CMAKE_CXX_FLAGS "-std=c++11 ${SSE_FLAGS} -g -O3 -march=native")
-
+set(Sophus_INCLUDE_DIRS "/usr/local/include/sophus")
+set(Sophus_LIBS "/usr/local/lib/libSophus.so")
 find_package(OpenCV 4 REQUIRED)
 find_package(Sophus REQUIRED)
 find_package(Pangolin REQUIRED)
+find_package(Eigen3 REQUIRED)
+message("Build type: " ${OpenCV_INCLUDE_DIRS})
+message("Build type: " ${EIGEN3_INCLUDE_DIR})
+message("Sophus_INCLUDE_DIRS: " ${Sophus_INCLUDE_DIRS})
 
 include_directories(
         ${OpenCV_INCLUDE_DIRS}
@@ -18,7 +23,7 @@ include_directories(
 )
 
 add_executable(optical_flow optical_flow.cpp)
-target_link_libraries(optical_flow ${OpenCV_LIBS})
+target_link_libraries(optical_flow ${OpenCV_LIBS} Sophus::Sophus)
 
 add_executable(direct_method direct_method.cpp)
-target_link_libraries(direct_method ${OpenCV_LIBS} ${Pangolin_LIBRARIES})
+target_link_libraries(direct_method ${OpenCV_LIBS} ${Pangolin_LIBRARIES} Sophus::Sophus)
