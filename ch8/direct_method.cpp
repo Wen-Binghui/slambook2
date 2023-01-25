@@ -138,6 +138,7 @@ int main(int argc, char **argv)
     vector<double> depth_ref;
 
     // generate pixels in ref and load depth data
+    //: 产生深度参考值 和 像素点位置
     for (int i = 0; i < nPoints; i++)
     {
         int x = rng.uniform(boarder, left_img.cols - boarder); // don't pick pixels close to boarder
@@ -151,8 +152,8 @@ int main(int argc, char **argv)
     // estimates 01~05.png's pose using this information
     Sophus::SE3d T_cur_ref;
 
-    for (int i = 1; i < 6; i++)
-    { // 1~10
+    for (int i = 1; i < 2; i++) // 1-5
+    {                           // 1~10
         cv::Mat img = cv::imread((fmt_others % i).str(), 0);
         // try single layer by uncomment this line
         // DirectPoseEstimationSingleLayer(left_img, img, pixels_ref, depth_ref, T_cur_ref);
@@ -243,17 +244,19 @@ void JacobianAccumulator::accumulate_jacobian(const cv::Range &range)
     Matrix6d hessian = Matrix6d::Zero();
     Vector6d bias = Vector6d::Zero();
     double cost_tmp = 0;
-
+    //: T21 初始 I
     for (size_t i = range.start; i < range.end; i++)
     {
-
+        //: 遍历所有点 px_ref
         // compute the projection in the second image
+        //: unprojection
         Eigen::Vector3d point_ref =
             depth_ref[i] * Eigen::Vector3d((px_ref[i][0] - cx) / fx, (px_ref[i][1] - cy) / fy, 1);
+        //: 用初始T21转换 
         Eigen::Vector3d point_cur = T21 * point_ref;
         if (point_cur[2] < 0) // depth invalid
             continue;
-
+        //: projection
         float u = fx * point_cur[0] / point_cur[2] + cx, v = fy * point_cur[1] / point_cur[2] + cy;
         if (u < half_patch_size || u > img2.cols - half_patch_size || v < half_patch_size ||
             v > img2.rows - half_patch_size)
@@ -265,10 +268,11 @@ void JacobianAccumulator::accumulate_jacobian(const cv::Range &range)
         cnt_good++;
 
         // and compute error and jacobian
+        //: 对一个patch
         for (int x = -half_patch_size; x <= half_patch_size; x++)
             for (int y = -half_patch_size; y <= half_patch_size; y++)
             {
-
+                //: 对比两个patch的亮度
                 double error = GetPixelValue(img1, px_ref[i][0] + x, px_ref[i][1] + y) -
                                GetPixelValue(img2, u + x, v + y);
                 Matrix26d J_pixel_xi;
@@ -288,16 +292,18 @@ void JacobianAccumulator::accumulate_jacobian(const cv::Range &range)
                 J_pixel_xi(1, 4) = fy * X * Y * Z2_inv;
                 J_pixel_xi(1, 5) = fy * X * Z_inv;
 
+                //: dI/du
                 J_img_pixel = Eigen::Vector2d(
                     0.5 * (GetPixelValue(img2, u + 1 + x, v + y) - GetPixelValue(img2, u - 1 + x, v + y)),
                     0.5 * (GetPixelValue(img2, u + x, v + 1 + y) - GetPixelValue(img2, u + x, v - 1 + y)));
 
                 // total jacobian
+                //: 1*2 2*6 -> 6*1
                 Vector6d J = -1.0 * (J_img_pixel.transpose() * J_pixel_xi).transpose();
 
-                hessian += J * J.transpose();
-                bias += -error * J;
-                cost_tmp += error * error;
+                hessian += J * J.transpose(); //: 6*6
+                bias += -error * J; //: 6*1
+                cost_tmp += error * error; //: 1
             }
     }
 

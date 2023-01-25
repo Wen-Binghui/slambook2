@@ -207,7 +207,7 @@ void OpticalFlowTracker::calculateOpticalFlow(const Range &range)
     for (size_t i = range.start; i < range.end; i++)
     {
         auto kp = kp1[i];
-        double dx = 0, dy = 0; // dx,dy need to be estimated
+        double dx = 0, dy = 0; // dx, dy need to be estimated
         if (has_initial)
         {
             dx = kp2[i].pt.x - kp.pt.x;
@@ -240,6 +240,7 @@ void OpticalFlowTracker::calculateOpticalFlow(const Range &range)
             for (int x = -half_patch_size; x < half_patch_size; x++)
                 for (int y = -half_patch_size; y < half_patch_size; y++)
                 {
+                    //: error = -It
                     double error = GetPixelValue(img1, kp.pt.x + x, kp.pt.y + y) -
                                    GetPixelValue(img2, kp.pt.x + x + dx, kp.pt.y + y + dy);
                     ; // Jacobian
@@ -251,11 +252,12 @@ void OpticalFlowTracker::calculateOpticalFlow(const Range &range)
                                        0.5 * (GetPixelValue(img2, kp.pt.x + dx + x, kp.pt.y + dy + y + 1) -
                                               GetPixelValue(img2, kp.pt.x + dx + x, kp.pt.y + dy + y - 1)));
                     }
-                    else if (iter == 0)
+                    // else if (iter == 0) //! ori 错误
+                    else
                     {
                         // in inverse mode, J keeps same for all iterations
                         // NOTE this J does not change when dx, dy is updated, so we can store it and only compute error
-                        //: 在 img1 中取点位置不变 构建 J = [ ]
+                        //: 在 img1 中取点位置不变 构建 J = -[Ix, Iy]
                         J = -1.0 * Eigen::Vector2d(
                                        0.5 * (GetPixelValue(img1, kp.pt.x + x + 1, kp.pt.y + y) -
                                               GetPixelValue(img1, kp.pt.x + x - 1, kp.pt.y + y)),
@@ -265,7 +267,7 @@ void OpticalFlowTracker::calculateOpticalFlow(const Range &range)
                     // compute H, b and set cost;
                     b += -error * J;
                     cost += error * error;
-                    if (inverse == false || iter == 0)
+                    // if (inverse == false || iter == 0) //! ori 错误
                     {
                         // also update H
                         H += J * J.transpose();
@@ -273,7 +275,8 @@ void OpticalFlowTracker::calculateOpticalFlow(const Range &range)
                 }
 
             // compute update
-            Eigen::Vector2d update = H.ldlt().solve(b);
+            //: gauss-newton: inv(J*J‘) * J * e
+            Eigen::Vector2d update = H.ldlt().solve(b); // Hx = b
 
             if (std::isnan(update[0]))
             {
@@ -325,6 +328,8 @@ void OpticalFlowMultiLevel(
     // create pyramids
     chrono::steady_clock::time_point t1 = chrono::steady_clock::now();
     vector<Mat> pyr1, pyr2; // image pyramids
+
+    //: pyramids ids 越大越粗
     for (int i = 0; i < pyramids; i++)
     {
         if (i == 0)
@@ -368,7 +373,7 @@ void OpticalFlowMultiLevel(
         cout << "track pyr " << level << " cost time: " << time_used.count() << endl;
 
         if (level > 0)
-        {
+        {   //: 转回去到0层
             for (auto &kp : kp1_pyr)
                 kp.pt /= pyramid_scale;
             for (auto &kp : kp2_pyr)
